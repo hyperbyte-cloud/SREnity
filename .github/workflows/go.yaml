@@ -1,0 +1,39 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Go
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    services:
+       influxdb:
+        image: influxdb:1.8
+        env:
+          INFLUXDB_DB: testdb
+        ports:
+          - 8086:8086
+        options: --health-cmd="influx -execute \"SHOW DATABASES\" " --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+
+    - name: Build
+      run: cd src && go build -v ./...
+
+    - name: Add Test Data to InfluxDB
+      run: curl -i -XPOST http://localhost:8086/write?db=testdb --data-binary 'test_measurement,tag1=foo field1=42.0,field2=100.0'
+
+    - name: Test
+      run: cd src && go test -v ./...

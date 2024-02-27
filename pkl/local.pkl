@@ -1,0 +1,46 @@
+amends "./spec.pkl"
+inputs = new {
+    new {
+        name = "influx1"
+        type = "influxdb_v1"
+        config = new {
+            host = "http://localhost:8086"
+            database = "testdb"
+        }
+    }
+}
+outputs = new {
+    new {
+        name = "influx2"
+        type = "influxdb_v1"
+        config = new {
+            host = "http://localhost:8086"
+            database = "testdb"
+        }
+    }
+}
+slos = new {
+    new {
+        name = "My SLO"
+        description = "My SLO description"
+        output = "influx2"
+        slis {
+            new {
+                name = "Successful SLI"
+                description = ""
+                interval = 10.s
+                input = "influx1"
+                query = "SELECT mean(field1) FROM test_measurement fill(0)"
+                goal = 99.9
+            }
+            new {
+                name = "Failing SLI"
+                description = ""
+                interval = 10.s
+                input = "influx1"
+                query = "SELECT mean(field2) FROM test_measurement fill(0)"
+                goal = 99.9
+            }
+        }
+    }
+}

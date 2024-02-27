@@ -1,0 +1,34 @@
+@go.Package { name = "src/entities/pkl" }
+module srenity.entities.Configuration;
+
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.5.3#/go.pkl" 
+
+inputs: Listing<Datasource>
+outputs: Listing<Datasource>
+@go.Name { value = "SLOs" }
+slos: Listing<SLO>
+
+class Datasource {
+    name: String
+    type: String
+
+    // golang interface
+    config: Dynamic
+}
+
+class SLO {
+    name: String
+    description: String
+    output: String
+    @go.Name { value = "SLIs" }
+    slis: Listing<SLI>
+}
+
+class SLI {
+    name: String
+    description: String
+    input: String
+    interval: Duration
+    query: String
+    goal: Float
+}
