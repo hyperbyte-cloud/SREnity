@@ -28,13 +28,13 @@ jobs:
       run: cd src && GOOS=darwin GOARCH=amd64 go build -o ../srenity_darwin_amd64
 
     - name: Build for Linux ARM
-      run: cd src && GOOS=linux GOARCH=arm go build -o ../srenity_linux_arm
+      run: cd src && GOOS=linux GOARCH=arm64 go build -o ../srenity_linux_arm64
 
     - name: Build for Windows ARM
-      run: cd src && GOOS=windows GOARCH=arm go build -o ../srenity_windows_arm.exe
+      run: cd src && GOOS=windows GOARCH=arm64 go build -o ../srenity_windows_arm64.exe
 
     - name: Build for macOS ARM
-      run: cd src && GOOS=darwin GOARCH=arm go build -o ../srenity_darwin_arm
+      run: cd src && GOOS=darwin GOARCH=arm64 go build -o ../srenity_darwin_arm64
 
   release:
     needs: build
@@ -49,9 +49,9 @@ jobs:
           srenity_linux_amd64
           srenity_windows_amd64.exe
           srenity_darwin_amd64
-          srenity_linux_arm
-          srenity_windows_arm.exe
-          srenity_darwin_arm
+          srenity_linux_arm64
+          srenity_windows_arm64.exe
+          srenity_darwin_arm64
 
   deploy:
     needs: release
@@ -85,14 +85,14 @@ jobs:
           srenity_linux_amd64
           srenity_windows_amd64.exe
           srenity_darwin_amd64
-          srenity_linux_arm
-          srenity_windows_arm.exe
-          srenity_darwin_arm
+          srenity_linux_arm64
+          srenity_windows_arm64.exe
+          srenity_darwin_arm64
         asset_name: |
-          srenity_linux_amd64-${{ github.event.release.tag_name }}
+          srenity-linux_amd64-${{ github.event.release.tag_name }}
           srenity_windows_amd64.exe-${{ github.event.release.tag_name }}
           srenity_darwin_amd64-${{ github.event.release.tag_name }}
-          srenity_linux_arm-${{ github.event.release.tag_name }}
-          srenity_windows_arm.exe-${{ github.event.release.tag_name }}
-          srenity_darwin_arm-${{ github.event.release.tag_name }}
+          srenity_linux_arm64-${{ github.event.release.tag_name }}
+          srenity_windows_arm64.exe-${{ github.event.release.tag_name }}
+          srenity_darwin_arm64-${{ github.event.release.tag_name }}
         asset_content_type: application/octet-stream
