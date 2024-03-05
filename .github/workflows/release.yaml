@@ -54,36 +54,19 @@ jobs:
       with:
         name: srenity-artifacts
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: true
-
     - name: Upload Release Assets
       id: upload-release-assets
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: |
+        name: Release ${{ github.ref }}
+        prerelease: true
+        generate_release_notes: true
+        files: |
           srenity_linux_amd64
           srenity_windows_amd64.exe
           srenity_darwin_amd64
           srenity_linux_arm64
           srenity_windows_arm64.exe
           srenity_darwin_arm64
-        asset_name: |
-          srenity-linux_amd64-${{ github.event.release.tag_name }}
-          srenity_windows_amd64-${{ github.event.release.tag_name }}.exe
-          srenity_darwin_amd64-${{ github.event.release.tag_name }}
-          srenity_linux_arm64-${{ github.event.release.tag_name }}
-          srenity_windows_arm64-${{ github.event.release.tag_name }}.exe
-          srenity_darwin_arm64-${{ github.event.release.tag_name }}
-        asset_content_type: application/octet-stream
