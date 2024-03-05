@@ -11,10 +11,10 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4.1.1
 
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5.0.0
       with:
         go-version: 1.22.0
 
@@ -36,30 +36,21 @@ jobs:
     - name: Build for macOS ARM
       run: cd src && GOOS=darwin GOARCH=arm64 go build -o ../srenity_darwin_arm64
 
-  release:
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: srenity-artifacts
+        path: srenity*
+        if-no-files-found: error
+        
+
+  deploy:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-    - name: Upload Release Artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: srenity-artifacts
-        path: |
-          srenity_linux_amd64
-          srenity_windows_amd64.exe
-          srenity_darwin_amd64
-          srenity_linux_arm64
-          srenity_windows_arm64.exe
-          srenity_darwin_arm64
-
-  deploy:
-    needs: release
-    runs-on: ubuntu-latest
-
-    steps:
     - name: Download Release Artifacts
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
         name: srenity-artifacts
 
@@ -72,7 +63,7 @@ jobs:
         tag_name: ${{ github.event.release.tag_name }}
         release_name: Release ${{ github.event.release.tag_name }}
         draft: false
-        prerelease: false
+        prerelease: true
 
     - name: Upload Release Assets
       id: upload-release-assets
@@ -90,9 +81,9 @@ jobs:
           srenity_darwin_arm64
         asset_name: |
           srenity-linux_amd64-${{ github.event.release.tag_name }}
-          srenity_windows_amd64.exe-${{ github.event.release.tag_name }}
+          srenity_windows_amd64-${{ github.event.release.tag_name }}.exe
           srenity_darwin_amd64-${{ github.event.release.tag_name }}
           srenity_linux_arm64-${{ github.event.release.tag_name }}
-          srenity_windows_arm64.exe-${{ github.event.release.tag_name }}
+          srenity_windows_arm64-${{ github.event.release.tag_name }}.exe
           srenity_darwin_arm64-${{ github.event.release.tag_name }}
         asset_content_type: application/octet-stream
