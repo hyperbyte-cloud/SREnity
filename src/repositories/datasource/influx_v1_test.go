@@ -1,6 +1,7 @@
 package datasource
 
 import (
+	"net"
 	"testing"
 	"time"
 
@@ -16,7 +17,10 @@ const (
 )
 
 func TestInfluxV1Repository_Connect(t *testing.T) {
-	// Assume you have a running InfluxDB instance for testing
+	// Skip if no local InfluxDB is running
+	if !isPortOpen("localhost:8086", 300*time.Millisecond) {
+		t.Skip("InfluxDB is not running on localhost:8086")
+	}
 
 	config := entities.InfluxV1Configuration{
 		Host:     testInfluxV1Host,
@@ -34,7 +38,10 @@ func TestInfluxV1Repository_Connect(t *testing.T) {
 }
 
 func TestInfluxV1Repository_Query(t *testing.T) {
-	// Assume you have data in your InfluxDB instance for testing
+	// Skip if no local InfluxDB is running
+	if !isPortOpen("localhost:8086", 300*time.Millisecond) {
+		t.Skip("InfluxDB is not running on localhost:8086")
+	}
 
 	config := entities.InfluxV1Configuration{
 		Host:     testInfluxV1Host,
@@ -55,7 +62,10 @@ func TestInfluxV1Repository_Query(t *testing.T) {
 }
 
 func TestInfluxV1Repository_Write(t *testing.T) {
-	// Assume you have a running InfluxDB instance for testing
+	// Skip if no local InfluxDB is running
+	if !isPortOpen("localhost:8086", 300*time.Millisecond) {
+		t.Skip("InfluxDB is not running on localhost:8086")
+	}
 	config := entities.InfluxV1Configuration{
 		Host:     testInfluxV1Host,
 		Database: testInfluxV1Database,
@@ -83,5 +93,14 @@ func TestInfluxV1Repository_Write(t *testing.T) {
 		err := repo.Write(data)
 		assert.NoError(t, err)
 	}
+}
 
+// isPortOpen checks if a TCP address is reachable in a short timeout
+func isPortOpen(address string, timeout time.Duration) bool {
+	conn, err := net.DialTimeout("tcp", address, timeout)
+	if err != nil {
+		return false
+	}
+	_ = conn.Close()
+	return true
 }

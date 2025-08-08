@@ -14,6 +14,11 @@ func TestDomainCalculateSLI(t *testing.T) {
 	// define the config file
 	config := NewTestConfig(t)
 
+	// Skip if no local InfluxDB is running
+	if !isInfluxAvailable() {
+		t.Skip("InfluxDB is not running on localhost:8086")
+	}
+
 	// create a new domain
 	d := domain.NewDomain()
 
@@ -54,6 +59,11 @@ func TestDomainMonitorSLI(t *testing.T) {
 
 	// define the config file
 	config := NewTestConfig(t)
+
+	// Skip if no local InfluxDB is running
+	if !isInfluxAvailable() {
+		t.Skip("InfluxDB is not running on localhost:8086")
+	}
 
 	// create a new domain
 	d := domain.NewDomain()

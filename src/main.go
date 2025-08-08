@@ -10,7 +10,7 @@ import (
 var version string
 
 func main() {
-	slog.Info("Starting SREniy the SLO Tool")
+	slog.Info("Starting SREnity the SLO Tool")
 
 	// init the domain
 	domain := domain.NewDomain()

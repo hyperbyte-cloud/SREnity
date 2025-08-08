@@ -17,6 +17,11 @@ func TestDomainTest(t *testing.T) {
 	d := domain.NewDomain()
 
 	// Open input and output connections
+	// Skip if no local InfluxDB is running
+	if !isInfluxAvailable() {
+		t.Skip("InfluxDB is not running on localhost:8086")
+	}
+
 	err := d.LoadInputs(config.Inputs)
 	if err != nil {
 		t.Errorf("Test failed: %s", err)
@@ -44,7 +49,7 @@ func TestDomainTest(t *testing.T) {
 	}
 
 	if result.Status != "Passing" {
-		t.Errorf("Test failed: expected Status to be 'Failing', got %s", result.Status)
+		t.Errorf("Test failed: expected Status to be 'Passing', got %s", result.Status)
 	}
 
 	if result.Goal != 99.9 {

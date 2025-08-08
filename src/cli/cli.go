@@ -27,7 +27,7 @@ func NewCLI(domain *domain.Domain, version string) *CLI {
 func (c *CLI) Run() {
 	app := &cli.App{
 		Name:    "srenity",
-		Usage:   "SREniy the SLO Tool",
+		Usage:   "SREnity the SLO Tool",
 		Version: c.AppVersion,
 		Flags: []cli.Flag{
 			&cli.StringFlag{

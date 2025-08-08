@@ -81,6 +81,9 @@ func (d *Domain) StartOutputWriter(slo *pkl.SLO) {
 	// Start the writer
 	for metric := range d.metricChan {
 		// Add our tags to the metric
+		if metric.Tags == nil {
+			metric.Tags = map[string]string{}
+		}
 		metric.Tags["slo_name"] = slo.Name
 
 		// Write the metric

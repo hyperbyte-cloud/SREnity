@@ -37,6 +37,7 @@ func (d *Domain) MonitorSLI(sli *pkl.SLI) error {
 			}
 
 			errorBudget := new(big.Float).Sub(big.NewFloat(100.0), big.NewFloat(sli.Goal))
+			errorBudgetFloat, _ := errorBudget.Float64()
 
 			// Create a new metric
 			metric := entities.WriteMetric{
@@ -48,7 +49,7 @@ func (d *Domain) MonitorSLI(sli *pkl.SLI) error {
 				Values: map[string]interface{}{
 					"state":      SLOmet,
 					"goal":       sli.Goal,
-					"err_budget": errorBudget,
+					"err_budget": errorBudgetFloat,
 					"sli_max":    SLIMax,
 					"sli_min":    SLIMin,
 					"sli_mean":   SLIMean,
@@ -67,8 +68,13 @@ func (d *Domain) MonitorSLI(sli *pkl.SLI) error {
 // This function returns the SLI met, the max, mean, min, data, query error and go-error
 func (d *Domain) CalculateSLI(sli *pkl.SLI) (bool, float64, float64, float64, []float64, string, error) {
 	slog.Debug("Querying the database for: " + sli.Name)
+	// Ensure the input exists
+	repo, ok := d.inputDatasources[sli.Input]
+	if !ok {
+		return false, 0, 0, 0, nil, "", errors.New("input " + sli.Input + " not found")
+	}
 	// Query the database
-	QueryMetric, err := d.inputDatasources[sli.Input].Query(sli.Query)
+	QueryMetric, err := repo.Query(sli.Query)
 	if err != nil {
 		return false, 0, 0, 0, nil, "", err
 	}
@@ -81,8 +87,11 @@ func (d *Domain) CalculateSLI(sli *pkl.SLI) (bool, float64, float64, float64, []
 		queryError = "No values returned from the query"
 		met = false
 	} else {
+		// initialize min to first value to compute proper minimum
+		min = QueryMetric.Values[0]
 		for _, value := range QueryMetric.Values {
 			// Check to see if the SLI goal is met
+			// If this value exceeds the goal, this sample fails
 			if value > sli.Goal {
 				met = false
 			}
@@ -99,9 +108,7 @@ func (d *Domain) CalculateSLI(sli *pkl.SLI) (bool, float64, float64, float64, []
 		// Calculate the mean
 		mean = mean / float64(len(QueryMetric.Values))
 		// does this meet the SLO?
-		if mean <= sli.Goal {
-			met = true
-		}
+		met = mean <= sli.Goal
 	}
 
 	// log the SLOmet
